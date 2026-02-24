@@ -3,102 +3,95 @@ Performance Vergleich ( Messung von Laufzeiten ) zwischen in Disk und in Memory 
 
 Total Einträge: 3'654'736
 
-Erster Lauf misst "Disk + CPU"  danach nur CPU
+Erster Lauf misst "Disk + CPU" danach nur CPU
 Ab zweiten Lauf sind Daten im RAM, Plan im Cache → messe die stabile Laufzeit ohne Kompilierung & kalten Cache.
-
-
-
 */
 
 USE WideWorldImporters;
 GO
 
 SET NOCOUNT ON;
-SET STATISTICS IO ON;  /*Für die Logical reads nur in disk*/
-SET STATISTICS TIME ON;  /*Für CPU time = Prozessor und Elapsed Time = Gesamtzeit inkl. Wartezeit*/
+SET STATISTICS IO ON;   /*Für die Logical reads nur in disk*/
+SET STATISTICS TIME ON; /*Für CPU time = Prozessor und Elapsed Time = Gesamtzeit inkl. Wartezeit*/
 GO
 
 
 
-/* in disk table Warehouse.ColdRoomTemperetaures_Archive */
+/* IDs  */
+DECLARE @ExistingID INT = 5;
+DECLARE @NonExistingID INT = (SELECT MAX(ColdRoomTemperatureID) + 1 
+FROM Warehouse.ColdRoomTemperatures_Archive);  
+
+
+
+
+/* Test 1: Full Scan + ORDER BY */
+PRINT CHAR(10) + 'Test 1: Full Scan + ORDER BY';
 PRINT 'Disk-based table';
-SELECT --TOP(5000) 
-	   ColdRoomTemperatureID,
-       ColdRoomSensorNumber,
-       RecordedWhen,
-       Temperature,
-       ValidFrom,
-       ValidTo
-FROM Warehouse.ColdRoomTemperatures_Archive 
+SELECT
+    ColdRoomTemperatureID,
+    ColdRoomSensorNumber,
+    RecordedWhen,
+    Temperature,
+    ValidFrom,
+    ValidTo
+FROM Warehouse.ColdRoomTemperatures_Archive
 ORDER BY ColdRoomTemperatureID;
-GO
 
-
-/* in memory table Warehouse.ColdRoomTemperetaures_Archive_inMemoryT */
 PRINT 'Memory-optimized table';
-SELECT --TOP (5000) 
-       ColdRoomTemperatureID,
-       ColdRoomSensorNumber,
-       RecordedWhen,
-       Temperature,
-       ValidFrom,
-       ValidTo
+SELECT
+    ColdRoomTemperatureID,
+    ColdRoomSensorNumber,
+    RecordedWhen,
+    Temperature,
+    ValidFrom,
+    ValidTo
 FROM Warehouse.ColdRoomTemperatures_Archive_InMemoryT
 ORDER BY ColdRoomTemperatureID;
-GO
-
-SET STATISTICS TIME OFF; 
-SET STATISTICS IO OFF;   
 
 
-/*Ausführungsplan zurücksetzen*/
-USE WideWorldImporters;
-GO
-
+/* Ausführungsplan zurücksetzen (Plan Cache) */
 ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;
-GO
 
 
-
-/* Point Look up
-Vorteil von MOT Ausgabe in 0 ms bei einem Datenset von 3.6 Mio Einträgen*/
-
-USE WideWorldImporters;
-GO
-
-SET NOCOUNT ON;
-SET STATISTICS IO ON;  /*Für die Logical reads nur in disk*/
-SET STATISTICS TIME ON;  /*Für CPU time = Prozessor und Elapsed Time = Gesamtzeit inkl. Wartezeit*/
-GO
-
-
-
-/* in disk table Warehouse.ColdRoomTemperetaures_Archive */
+/* Test 2: Point Lookup (Datensatz vorhanden) */
+PRINT CHAR(10) + 'Test 2: Point Lookup (Datensatz vorhanden)';
 PRINT 'Disk-based table';
-SELECT ColdRoomTemperatureID,
-       ColdRoomSensorNumber,
-       RecordedWhen,
-       Temperature,
-       ValidFrom,
-       ValidTo
-FROM Warehouse.ColdRoomTemperatures_Archive 
-WHERE ColdRoomTemperatureID = '5'
-ORDER BY ColdRoomTemperatureID;
-GO
+SELECT
+    ColdRoomTemperatureID,
+    ColdRoomSensorNumber,
+    RecordedWhen,
+    Temperature,
+    ValidFrom,
+    ValidTo
+FROM Warehouse.ColdRoomTemperatures_Archive
+WHERE ColdRoomTemperatureID = @ExistingID;
 
-
-/* in memory table Warehouse.ColdRoomTemperetaures_Archive_inMemoryT */
 PRINT 'Memory-optimized table';
-SELECT ColdRoomTemperatureID,
-       ColdRoomSensorNumber,
-       RecordedWhen,
-       Temperature,
-       ValidFrom,
-       ValidTo
+SELECT
+    ColdRoomTemperatureID,
+    ColdRoomSensorNumber,
+    RecordedWhen,
+    Temperature,
+    ValidFrom,
+    ValidTo
 FROM Warehouse.ColdRoomTemperatures_Archive_InMemoryT
-WHERE ColdRoomTemperatureID = '5'
-ORDER BY ColdRoomTemperatureID;
-GO
+WHERE ColdRoomTemperatureID = @ExistingID;
 
-SET STATISTICS TIME OFF; 
-SET STATISTICS IO OFF;   
+
+/* Test 3: Negative Lookup (Datensatz nicht vorhanden) */
+PRINT CHAR(10) + 'Test 3: Negative Lookup (Datensatz nicht vorhanden)';
+PRINT 'Disk-based table';
+SELECT ColdRoomTemperatureID
+FROM Warehouse.ColdRoomTemperatures_Archive
+WHERE ColdRoomTemperatureID = @NonExistingID;
+
+PRINT 'Memory-optimized table';
+SELECT ColdRoomTemperatureID
+FROM Warehouse.ColdRoomTemperatures_Archive_InMemoryT
+WHERE ColdRoomTemperatureID = @NonExistingID;
+
+
+SET STATISTICS TIME OFF;
+SET STATISTICS IO OFF;
+GO
