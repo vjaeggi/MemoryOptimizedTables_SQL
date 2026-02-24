@@ -1,0 +1,8 @@
+1. Unterschied Microsoft SQL Server «disk» Tables von «Memory Optimized Tables»
+	Vorteil In-Memory Tables 
+
+2. SKRIPT: Memory Optimized Table in einer Microsoft SQL Server Datenbank 
+	Laden von Beispieldaten
+	alle Operationen und Konfigurationen (Create) 
+
+3. SKRIPT: Erklären in welchem Fall eine Memory Optimized Table einen Vorteil haben kann und ein Beispiel zeigen bei dem die Memory Optimized Table keinen Vorteil zu einer   	konventionellen disk-based Table hat.
