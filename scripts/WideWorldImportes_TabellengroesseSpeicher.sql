@@ -37,7 +37,17 @@ SELECT COUNT(*) FROM WideWorldImporters.Warehouse.ColdRoomTemperatures_Archive
 -- mit 3'654'736 Einträgen
 
 
-
+SELECT
+    c.column_id,
+    c.name AS ColumnName,
+    t.name AS DataType,
+    c.is_nullable,
+    c.is_identity
+FROM WideWorldImporters.sys.columns c
+JOIN WideWorldImporters.sys.types t
+    ON c.user_type_id = t.user_type_id
+WHERE c.object_id = OBJECT_ID('WideWorldImporters.Warehouse.ColdRoomTemperatures_Archive')
+ORDER BY c.column_id;
 
 
 
