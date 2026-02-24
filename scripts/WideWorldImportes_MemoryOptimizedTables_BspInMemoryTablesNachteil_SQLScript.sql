@@ -27,6 +27,13 @@ FROM Warehouse.ColdRoomTemperatures_Archive;
 SELECT COUNT(*) AS Anzahl_InMemory
 FROM Warehouse.ColdRoomTemperatures_Archive_InMemoryT;
 
+/*CREATE NONCLUSTERED COLUMNSTORE INDEX IX_ColdRoom_Archive_CCI
+ON Warehouse.ColdRoomTemperatures_Archive
+(
+    ColdRoomSensorNumber,
+    RecordedWhen,
+    Temperature
+);*/
 
 
 SET NOCOUNT ON;
