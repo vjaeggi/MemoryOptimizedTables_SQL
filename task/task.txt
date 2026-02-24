@@ -6,3 +6,11 @@
 	alle Operationen und Konfigurationen (Create) 
 
 3. SKRIPT: Erklären in welchem Fall eine Memory Optimized Table einen Vorteil haben kann und ein Beispiel zeigen bei dem die Memory Optimized Table keinen Vorteil zu einer   	konventionellen disk-based Table hat.
+	Performance Vergleich ( Messung von Laufzeiten ) aufzeigen 
+
+
+Rahmenbedingungen
+Developer Edition und SSMS sind ideal für das Testing
+
+MS SQL Server Version Edition (2019, 2022, 2025) frei wählbar
+
