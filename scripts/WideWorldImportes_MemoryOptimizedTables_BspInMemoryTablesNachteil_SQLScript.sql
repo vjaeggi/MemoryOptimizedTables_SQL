@@ -31,7 +31,7 @@ FROM Warehouse.ColdRoomTemperatures_Archive_InMemoryT;
 
 SET NOCOUNT ON;
 SET STATISTICS TIME ON;   
-SET STATISTICS IO ON; /*Nur für in disk relevant*/
+
 GO
 
 
@@ -62,5 +62,5 @@ GO
 
 
 SET STATISTICS TIME OFF;   
-SET STATISTICS IO OFF;
+
 GO
